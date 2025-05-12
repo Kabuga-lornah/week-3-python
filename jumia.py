@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import csv
 import numpy as np
 
-# --- Input Section ---
+
 source_currency = input("Enter source currency (e.g. USD): ").strip().upper()
 if not source_currency:
     source_currency = "USD"
@@ -21,7 +21,7 @@ if not api_key:
     print("API key is required.")
     exit()
 
-# --- Scrape Jumia for Product Prices ---
+
 headers = {
     'User-Agent': 'Mozilla/5.0'
 }
@@ -60,7 +60,7 @@ if not products:
     print("No products found. Exiting.")
     exit()
 
-# --- Save Scraped Data to CSV ---
+
 csv_filename = "jumia_products_kes.csv"
 with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
     writer = csv.DictWriter(file, fieldnames=['Product Name', 'Price (KES)'])
@@ -69,11 +69,11 @@ with open(csv_filename, mode='w', newline='', encoding='utf-8') as file:
 
 print(f"Scraped product data saved to '{csv_filename}'.")
 
-# --- Currency Conversion ---
+
 df = pd.DataFrame(products)
 
 try:
-    # Correct direction: USD to KES (if converting KES to USD, divide KES by this rate)
+ 
     conversion_url = f"https://v6.exchangerate-api.com/v6/{api_key}/pair/{source_currency}/{target_currency}"
     response = requests.get(conversion_url)
     data = response.json()
@@ -89,7 +89,6 @@ except Exception as e:
     print(f"Conversion error: {e}")
     exit()
 
-# --- Convert and Save Data ---
 timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 df[f'Price ({source_currency})'] = (df['Price (KES)'] / rate).round(2)
 df['Timestamp'] = timestamp
@@ -98,11 +97,11 @@ processed_csv_filename = 'jumia_product_prices.csv'
 df.to_csv(processed_csv_filename, index=False)
 print(f"Processed prices saved to '{processed_csv_filename}'.")
 
-# --- Display Top 10 Products ---
+
 print(f"\n{'-'*40}\nJumia Product Prices (as of {timestamp}):\n{'-'*40}")
 print(df[['Product Name', 'Price (KES)', f'Price ({source_currency})']].head(10).to_string(index=False))
 
-# --- Visualization ---
+
 plot_df = df.head(10)
 titles = plot_df['Product Name']
 titles_short = [title if len(title) < 20 else title[:17] + "..." for title in titles]
